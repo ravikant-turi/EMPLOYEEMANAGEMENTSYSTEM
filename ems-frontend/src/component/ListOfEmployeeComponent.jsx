@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { listEmployee } from "../services/EmployeeService";
+import { listEmployee, deleteEmployeeById } from "../services/EmployeeService";
+import { useNavigate } from "react-router-dom";
 
 const ListOfEmployeeComponent = () => {
-var  dummyData = [
+  var dummyData = [
     {
       id: "1",
       firstName: "Ravi",
@@ -65,18 +66,50 @@ var  dummyData = [
     },
   ];
 
-  const [employees,setEmployee] =useState([])
+  const [employees, setEmployee] = useState([]);
 
-  useEffect ( ()=>{
-    listEmployee().then((response)=>{
+  const navigator = useNavigate();
+
+  useEffect(() => {
+    listEmployee()
+      .then((response) => {
         setEmployee(response.data);
-    }).catch(error=>{
+      })
+      .catch((error) => {
         console.error(error);
-    })
-  } ,[])
+      });
+  }, []);
+
+  function addnewEmployee() {
+    navigator("/add-employee");
+  }
+  function updateEmployee(id) {
+    navigator(`/edit-employee/${id}`);
+  }
+  function deleteEmployee(id) {
+    deleteEmployeeById(id)
+      .then((response) => {
+        console.log(response.data);
+        setEmployee((prev) => prev.filter((emp) => emp.id !== id));
+        return listEmployee();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    // navigator(`delete-employee/${id}`);
+  }
   return (
-    <div className="container">
-        <h1 className="text-center">List Of Employee</h1>
+    <div className="container mt-9">
+      <h1 className="text-center mt-2">List Of Employee</h1>
+      <hr />
+      <button
+        type="button"
+        className="btn btn-primary mb-1 "
+        onClick={addnewEmployee}
+      >
+        Add Employee
+      </button>
+
       <table className="table table-striped table-bordered table-hover text-center align-middle">
         <thead>
           <tr>
@@ -84,18 +117,38 @@ var  dummyData = [
             <th>FirstName</th>
             <th>LastName</th>
             <th>Email</th>
+            <th>Actions</th>
+            <th>Delete</th>
           </tr>
         </thead>
-          <tbody>
-            {employees.map((employee) => (
-              <tr key={employee.id}>
-                <td>{employee.id}</td>
-                <td>{employee.firstName}</td>
-                <td>{employee.lastName}</td>
-                <td>{employee.email}</td>
-              </tr>
-            ))}
-          </tbody>
+        <tbody>
+          {employees.map((employee) => (
+            <tr key={employee.id}>
+              <td>{employee.id}</td>
+              <td>{employee.firstName}</td>
+              <td>{employee.lastName}</td>
+              <td>{employee.email}</td>
+              <td>
+                <button
+                  type="button"
+                  className="btn btn-info"
+                  onClick={() => updateEmployee(employee.id)}
+                >
+                  Update
+                </button>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => deleteEmployee(employee.id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );
