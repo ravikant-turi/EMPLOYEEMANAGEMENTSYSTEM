@@ -6,7 +6,7 @@ import HelloWorld from "./HelloWorld";
 function App() {
   return (
     <>
-    
+    <HeaderComponent/>
       <ListOfEmployeeComponent />
     </>
   );
